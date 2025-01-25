@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VetrinaGalaApp.ApiService", "VetrinaGalaApp.ApiService.csproj", "{DBB86C41-3736-F9F6-9540-F5062A2DA5D6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DBB86C41-3736-F9F6-9540-F5062A2DA5D6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBB86C41-3736-F9F6-9540-F5062A2DA5D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBB86C41-3736-F9F6-9540-F5062A2DA5D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBB86C41-3736-F9F6-9540-F5062A2DA5D6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {81706CC4-1A2F-4AF0-B4ED-614B0E8E0647}
+	EndGlobalSection
+EndGlobal
