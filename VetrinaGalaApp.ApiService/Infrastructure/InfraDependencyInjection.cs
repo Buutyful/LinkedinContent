@@ -40,6 +40,7 @@ public static class InfraDependencyInjection
           })
           .AddJwtBearer();
 
+        services.AddScoped<ICurrentUserProvider, UserProvider>();
         return services;
     }
 }
