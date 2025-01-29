@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using VetrinaGalaApp.ApiService;
 using VetrinaGalaApp.ApiService.Application;
 using VetrinaGalaApp.ApiService.Infrastructure;
@@ -34,3 +33,4 @@ var app = builder.Build();
     app.Run();
 }
 
+public interface IProgramMarker;

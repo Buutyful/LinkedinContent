@@ -1,10 +1,20 @@
+using Xunit.Abstractions;
+
 namespace VetrinaGalaApp.Tests;
 
 public class WebTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public WebTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     [Fact]
     public async Task GetWebResourceRootReturnsOkStatusCode()
     {
+
         // Arrange
         var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.VetrinaGalaApp_AppHost>();
         appHost.Services.ConfigureHttpClientDefaults(clientBuilder =>
@@ -24,5 +34,6 @@ public class WebTests
 
         // Assert
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-    }
+    }   
+    
 }
