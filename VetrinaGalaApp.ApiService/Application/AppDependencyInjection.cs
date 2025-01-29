@@ -1,4 +1,5 @@
 ﻿using VetrinaGalaApp.ApiService.Application.MiddlewareBehaviors;
+using FluentValidation;
 
 namespace VetrinaGalaApp.ApiService.Application;
 
@@ -8,13 +9,11 @@ public static class AppDependencyInjection
     {
         services.AddMediatR(options =>
         {
-            options.RegisterServicesFromAssembly(typeof(IAssemblyMarkerApp).Assembly);
-
+            options.RegisterServicesFromAssembly(typeof(AppDependencyInjection).Assembly);
             options.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
             options.AddOpenBehavior(typeof(ValidationBehavior<,>));
         });
-        
+        services.AddValidatorsFromAssemblyContaining(typeof(AppDependencyInjection));
         return services;
     }
 }
-public interface IAssemblyMarkerApp;

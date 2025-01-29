@@ -29,8 +29,10 @@ var app = builder.Build();
     app.UseAuthorization();
 
     app.MapDefaultEndpoints(); 
+    app.MapEndPoints();
 
     app.Run();
 }
 
 public interface IProgramMarker;
+public partial class Program { }

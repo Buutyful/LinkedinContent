@@ -1,26 +1,29 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using VetrinaGalaApp.ApiService.Infrastructure;
 
 namespace VetrinaGalaApp.Tests.Integration;
 
 public static class ServiceCollectionExtensions
 {
-    public static void RemoveDbContext<TDbContext>(this IServiceCollection services)
+    public static void RemoveAllDbContext<TDbContext>(this IServiceCollection services)
         where TDbContext : DbContext
     {
-        var descriptor = services.FirstOrDefault(d =>
-            d.ServiceType == typeof(DbContextOptions<TDbContext>));
+        var descriptors = services
+               .Where(d => d.ServiceType.Namespace?.StartsWith("Microsoft.EntityFrameworkCore") == true)
+               .ToList();
 
-        if (descriptor != null)
+        foreach (var descriptor in descriptors)
         {
             services.Remove(descriptor);
         }
 
-        var contextDescriptor = services.FirstOrDefault(d =>
-            d.ServiceType == typeof(TDbContext));
-
-        if (contextDescriptor != null)
+        // Remove existing DbContext registration
+        var dbContextDescriptor = services.SingleOrDefault(
+            d => d.ServiceType == typeof(AppDbContext));
+        if (dbContextDescriptor != null)
         {
-            services.Remove(contextDescriptor);
+            services.Remove(dbContextDescriptor);
         }
+
     }
 }

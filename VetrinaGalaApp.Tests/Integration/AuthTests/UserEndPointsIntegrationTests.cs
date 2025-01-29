@@ -1,6 +1,4 @@
-﻿using Docker.DotNet.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Json;
 using VetrinaGalaApp.ApiService.EndPoints;
 
 namespace VetrinaGalaApp.Tests.Integration.AuthTests;

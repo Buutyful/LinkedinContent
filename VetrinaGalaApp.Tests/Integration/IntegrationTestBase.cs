@@ -6,6 +6,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
 {
     protected ApiServiceTestFactory Factory { get; }
     protected HttpClient Client { get; private set; } = null!;
+    private IServiceScope _scope = null!;
     protected AppDbContext DbContext { get; private set; } = null!;
 
     protected IntegrationTestBase()
@@ -17,11 +18,13 @@ public abstract class IntegrationTestBase : IAsyncLifetime
     {
         await Factory.InitializeAsync();
         Client = Factory.CreateClient();
-        DbContext = Factory.CreateDbContext();
+        _scope = Factory.Services.CreateScope();
+        DbContext = _scope.ServiceProvider.GetRequiredService<AppDbContext>();
     }
 
     public async Task DisposeAsync()
-    {        
+    {
+        _scope.Dispose();
         await Factory.DisposeAsync();
     }
 
