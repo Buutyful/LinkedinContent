@@ -2,14 +2,14 @@
 
 namespace VetrinaGalaApp.Tests.Integration;
 
-public abstract class IntegrationTestBase : IAsyncLifetime
+public class IntegrationTestBase : IAsyncLifetime
 {
-    protected ApiServiceTestFactory Factory { get; }
-    protected HttpClient Client { get; private set; } = null!;
     private IServiceScope _scope = null!;
-    protected AppDbContext DbContext { get; private set; } = null!;
+    public ApiServiceTestFactory Factory { get; }
+    public HttpClient Client { get; private set; } = null!;
+    public AppDbContext DbContext { get; private set; } = null!;
 
-    protected IntegrationTestBase()
+    public IntegrationTestBase()
     {
         Factory = new ApiServiceTestFactory();
     }
@@ -28,7 +28,7 @@ public abstract class IntegrationTestBase : IAsyncLifetime
         await Factory.DisposeAsync();
     }
 
-    protected async Task ResetDatabaseAsync()
+    public async Task ResetDatabaseAsync()
     {
         await DbContext.Database.EnsureDeletedAsync();
         await DbContext.Database.EnsureCreatedAsync();

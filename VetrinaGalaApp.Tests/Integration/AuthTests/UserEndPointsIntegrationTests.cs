@@ -3,8 +3,11 @@ using VetrinaGalaApp.ApiService.EndPoints;
 
 namespace VetrinaGalaApp.Tests.Integration.AuthTests;
 
-public class UserEndpointsIntegrationTests : IntegrationTestBase
+public class UserEndpointsIntegrationTests(IntegrationTestBase integrationTestBase) :
+    IClassFixture<IntegrationTestBase>
 {
+    private readonly IntegrationTestBase _base = integrationTestBase;
+
     [Fact]
     public async Task Register_WithValidCredentials_CreatesUserWithHashedPassword()
     {
@@ -13,12 +16,12 @@ public class UserEndpointsIntegrationTests : IntegrationTestBase
             "testuser", "test@example.com", "SecurePassword123!");
 
         // Act
-        var response = await Client.PostAsJsonAsync("/auth/register", request);
+        var response = await _base.Client.PostAsJsonAsync("/auth/register", request);
 
         // Assert
         response.EnsureSuccessStatusCode();
         
-        var userManager = Factory.CreateUserManager();
+        var userManager = _base.Factory.CreateUserManager();
         var user = await userManager.FindByEmailAsync(request.Email);
 
         Assert.NotNull(user);
@@ -31,10 +34,10 @@ public class UserEndpointsIntegrationTests : IntegrationTestBase
     {
         // Arrange        
         var request = new RegisterAsUserRequest(
-            "testuser", "test@example.com", "weak");
+            "testuser1", "test1@example.com", "weak");
 
         // Act
-        var response = await Client.PostAsJsonAsync("/auth/register", request);
+        var response = await _base.Client.PostAsJsonAsync("/auth/register", request);
 
         // Assert
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
