@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Builder;
 using VetrinaGalaApp.ApiService.Application.Authentication;
 
 namespace VetrinaGalaApp.ApiService.EndPoints;
@@ -37,8 +38,10 @@ public static class UserEndPoints
             return result.Match(
                 res => Results.Ok(res),
                 errors => errors.ToResult());
-        });       
+        });
 
+        group.MapGet("/check", () => Results.Ok())
+            .RequireAuthorization();
         return app;
     }
 }
