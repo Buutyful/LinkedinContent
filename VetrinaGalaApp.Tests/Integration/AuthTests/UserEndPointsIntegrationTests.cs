@@ -7,13 +7,17 @@ public class UserEndpointsIntegrationTests(IntegrationTestBase integrationTestBa
     IClassFixture<IntegrationTestBase>
 {
     private readonly IntegrationTestBase _base = integrationTestBase;
+    private static readonly RegisterAsUserRequest[] _users =
+    [
+        new RegisterAsUserRequest("testuser", "test@example.com", "SecurePassword123!"),
+        new RegisterAsUserRequest("testuser1", "test1@example.com", "weak"),
+    ];
 
     [Fact]
     public async Task Register_WithValidCredentials_CreatesUserWithHashedPassword()
     {
         // Arrange        
-        var request = new RegisterAsUserRequest(
-            "testuser", "test@example.com", "SecurePassword123!");
+        var request = _users[0];
 
         // Act
         var response = await _base.Client.PostAsJsonAsync("/auth/register", request);
@@ -33,8 +37,7 @@ public class UserEndpointsIntegrationTests(IntegrationTestBase integrationTestBa
     public async Task Register_WithWeakPassword_ReturnsValidationError()
     {
         // Arrange        
-        var request = new RegisterAsUserRequest(
-            "testuser1", "test1@example.com", "weak");
+        var request = _users[1];
 
         // Act
         var response = await _base.Client.PostAsJsonAsync("/auth/register", request);
