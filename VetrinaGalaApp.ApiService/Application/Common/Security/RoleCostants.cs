@@ -11,5 +11,4 @@ public class RoleConstants
             .GetFields(BindingFlags.Public | BindingFlags.Static)
             .Where(f => f.IsLiteral && f.FieldType == typeof(string))
             .Select(f => (string)f.GetValue(null)!);
-
 }

@@ -1,6 +1,8 @@
 ﻿using ErrorOr;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Application.MiddlewareBehaviors;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.EndPoints;
@@ -8,6 +10,7 @@ using VetrinaGalaApp.ApiService.Infrastructure;
 
 namespace VetrinaGalaApp.ApiService.Application.StoreUseCases;
 
+[Authorize(Policy = PolicyCostants.StoreOwner)]
 public record CreateItemCommand(Guid ResourceOriginId, CreateItemRequest Item) : IAuthorizeableRequest<ErrorOr<Item>>;
 public class CreateItemCommandValidator : AbstractValidator<CreateItemCommand>
 {

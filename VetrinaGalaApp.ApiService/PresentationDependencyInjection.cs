@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.EndPoints;
 
 namespace VetrinaGalaApp.ApiService;
@@ -9,15 +10,8 @@ public static class PresentationDependencyInjection
     {
         services.AddProblemDetails();
         services.AddHttpContextAccessor();
-        services.AddAuthorizationBuilder()
-            .AddPolicy("SellerOrAdmin", policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireRole("Admin", "Seller");
-            });
-
-
-        services.AddSingleton<IAuthorizationHandler, StoreOwnerAuthorizationHandler>();
+        services.AddAuthorizationRequirments();
+        
         services.AddOpenApi();
 
         return services;
@@ -30,5 +24,21 @@ public static class PresentationDependencyInjection
             .MapStoreEndPoints();
 
         return app;
+    }
+
+    private static IServiceCollection AddAuthorizationRequirments(this IServiceCollection services)
+    {
+        services.AddAuthorizationBuilder()
+           .AddPolicy(PolicyCostants.OwnsAStoreOrAdmin, policy =>
+           {
+               policy.RequireAuthenticatedUser();
+               policy.RequireRole(RoleConstants.Admin, RoleConstants.StoreOwner);
+           })
+           .AddPolicy(PolicyCostants.StoreOwner, policy => policy.AddRequirements(new StoreOwnerRequirement()));
+
+
+        services.AddSingleton<IAuthorizationHandler, StoreOwnerAuthorizationHandler>();
+
+        return services;
     }
 }

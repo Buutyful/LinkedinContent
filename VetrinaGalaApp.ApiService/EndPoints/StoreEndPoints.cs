@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
-using VetrinaGalaApp.ApiService.Application.Store;
+using VetrinaGalaApp.ApiService.Application.StoreUseCases;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.Infrastructure;
 
@@ -13,33 +13,35 @@ public static class StoreEndPoints
 {
     public static IEndpointRouteBuilder MapStoreEndPoints(this IEndpointRouteBuilder app)
     {
-        var group = app.MapGroup("store").RequireAuthorization("SellerOrAdmin");
-
-        group.MapGet("/{storeId:guid}/items",
-            async (Guid storeId, AppDbContext context,
-            IAuthorizationService auth,
-            HttpContext httpContext) =>
+        var group = app.MapGroup("store").RequireAuthorization(PolicyCostants.OwnsAStoreOrAdmin);
         {
-            var authResult = await auth.AuthorizeAsync(httpContext.User, new JustStoreId(storeId), new StoreOwnerRequirement());
-            if (!authResult.Succeeded)
+            group.MapGet("/{storeId:guid}/items",
+                async (Guid storeId, AppDbContext context,
+                IAuthorizationService auth,
+                HttpContext httpContext) =>
             {
-                return Results.Forbid();
-            }
-            var items = await context.Items.Where(i => i.StoreId == storeId).ToListAsync();
-            return Results.Ok(items);
-        });
+                var authResult = await auth.AuthorizeAsync(httpContext.User, new JustStoreId(storeId), new StoreOwnerRequirement());
+                if (!authResult.Succeeded)
+                {
+                    return Results.Forbid();
+                }
+                var items = await context.Items.Where(i => i.StoreId == storeId).ToListAsync();
+                return Results.Ok(items);
+            });
 
-        group.MapPost("/{storeId:guid}",
-            async (Guid storeId,
-            CreateItemRequest request,
-            ISender sender) =>
-        {
-            var resp = await sender.Send(new CreateItemCommand(storeId, request));
+            group.MapPost("/{storeId:guid}",
+                async (Guid storeId,
+                CreateItemRequest request,
+                ISender sender) =>
+            {
+                var resp = await sender.Send(new CreateItemCommand(storeId, request));
 
-            return resp.Match(
-                item => Results.Ok((ItemDto)item),
-                errors => errors.ToResult());
-        });
+                return resp.Match(
+                    item => Results.Ok((ItemDto)item),
+                    errors => errors.ToResult());
+            });
+        }
+
 
         app.MapPost("store/register", async Task<IResult> (
           CreateStoreRequest request,

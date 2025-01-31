@@ -60,7 +60,5 @@ public class CreateStoreCommandHandler(
             return Error.Failure(description: e.Message);
         }
     }
-
-
 }
 
