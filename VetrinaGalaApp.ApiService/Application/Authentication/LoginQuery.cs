@@ -2,10 +2,10 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Application.Validators;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.EndPoints;
-using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 
 namespace VetrinaGalaApp.ApiService.Application.Authentication;
 

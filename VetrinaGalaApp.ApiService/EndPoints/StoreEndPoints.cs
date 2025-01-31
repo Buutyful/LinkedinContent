@@ -20,7 +20,7 @@ public static class StoreEndPoints
                 IAuthorizationService auth,
                 HttpContext httpContext) =>
             {
-                var authResult = await auth.AuthorizeAsync(httpContext.User, new JustStoreId(storeId), new StoreOwnerRequirement());
+                var authResult = await auth.AuthorizeAsync(httpContext.User, storeId, new StoreOwnerRequirement());
                 if (!authResult.Succeeded)
                 {
                     return Results.Forbid();
