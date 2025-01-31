@@ -6,7 +6,7 @@ using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.EndPoints;
 using VetrinaGalaApp.ApiService.Infrastructure;
 
-namespace VetrinaGalaApp.ApiService.Application.Store;
+namespace VetrinaGalaApp.ApiService.Application.StoreUseCases;
 
 public record CreateItemCommand(Guid ResourceOriginId, CreateItemRequest Item) : IAuthorizeableRequest<ErrorOr<Item>>;
 public class CreateItemCommandValidator : AbstractValidator<CreateItemCommand>

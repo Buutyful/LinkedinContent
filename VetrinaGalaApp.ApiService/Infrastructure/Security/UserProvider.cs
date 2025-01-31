@@ -1,14 +1,10 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 
 namespace VetrinaGalaApp.ApiService.Infrastructure.Security;
 
-public record CurrentUser(Guid Id, string Email, UserType UserType, Guid? StoreId);
-public interface ICurrentUserProvider
-{
-    public CurrentUser GetUser();
-}
 public class UserProvider(IHttpContextAccessor httpContextAccessor) : ICurrentUserProvider
 {
     private readonly HttpContext _context = httpContextAccessor.HttpContext ??

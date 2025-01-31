@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace VetrinaGalaApp.ApiService.Infrastructure.Security;
+namespace VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 
 public sealed class JwtBearerTokenValidationConfiguration(IOptions<JwtSettings> jwtSettings)
     : IConfigureNamedOptions<JwtBearerOptions>
@@ -26,13 +26,4 @@ public sealed class JwtBearerTokenValidationConfiguration(IOptions<JwtSettings> 
                 Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
         };
     }
-}
-public class JwtSettings
-{
-    public const string Section = "JwtSettings";
-
-    public string Audience { get; set; } = null!;
-    public string Issuer { get; set; } = null!;
-    public string Secret { get; set; } = null!;
-    public int TokenExpirationInMinutes { get; set; }
 }

@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.Infrastructure.Security;
+using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 
 
 namespace VetrinaGalaApp.ApiService.Infrastructure;

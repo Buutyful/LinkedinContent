@@ -28,7 +28,7 @@ public class AuthorizationBehavior<TRequest, TResponse>
         var authResult = await _authorizationService.AuthorizeAsync(
             _httpContext.User,
             new JustStoreId(request.ResourceOriginId),
-            new StoreOwnerRequirement());
+            new StoreOwnerRequirement()); //This should be chosen at runtime depending on the "policy" needed
 
         if (!authResult.Succeeded)
         {            

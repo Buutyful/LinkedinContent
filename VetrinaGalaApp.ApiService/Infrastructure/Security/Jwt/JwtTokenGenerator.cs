@@ -3,14 +3,11 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 
-namespace VetrinaGalaApp.ApiService.Infrastructure.Security;
-public interface IJwtTokenGenerator
-{
-    //TODO: add relevant claims
-    public string GenerateToken(User user);
-}
+namespace VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
+
 public class JwtTokenGenerator(IOptions<JwtSettings> jwtOptions) : IJwtTokenGenerator
 {
     private readonly JwtSettings _jwtSettings = jwtOptions.Value;
@@ -30,7 +27,7 @@ public class JwtTokenGenerator(IOptions<JwtSettings> jwtOptions) : IJwtTokenGene
 
         if (user.UserType == UserType.StoreOwner && user.Store is not null)
         {
-            claims.Add(new Claim("OwnedStoreId", user.Store.Id.ToString()));
+            claims.Add(new Claim(JtwClaimTypesConstants.OwnedStoreId, user.Store.Id.ToString()));
         }
         var token = new JwtSecurityToken(
             issuer: _jwtSettings.Issuer,

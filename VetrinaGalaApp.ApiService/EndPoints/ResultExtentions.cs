@@ -15,8 +15,7 @@ public static class ResultExtentions
                        err.GroupBy(e => e.Code)
                           .ToDictionary(
                                g => g.Key,
-                               g => g.Select(e => e.Description).ToArray()
-                           )),
+                               g => g.Select(e => e.Description).ToArray())),
                [.. var err] => MapToResult(err[0])
            };
 

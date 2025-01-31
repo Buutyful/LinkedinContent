@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 
 public interface IStoreResource
 {
@@ -15,7 +16,7 @@ public class StoreOwnerAuthorizationHandler : AuthorizationHandler<StoreOwnerReq
         StoreOwnerRequirement requirement,
         IStoreResource resource)
     {
-        var storeId = context.User.Claims.Single(claim => claim.Type == "OwnedStoreId")?.Value;
+        var storeId = context.User.Claims.Single(claim => claim.Type == JtwClaimTypesConstants.OwnedStoreId)?.Value;
 
         if (Guid.TryParse(storeId, out var res) && res == resource.StoreId)
         {
