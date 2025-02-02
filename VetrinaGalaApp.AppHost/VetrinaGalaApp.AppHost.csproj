@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VetrinaGalaApp.ApiService\VetrinaGalaApp.ApiService.csproj" />
+    <ProjectReference Include="..\VetrinaGalaApp.MigrationService\VetrinaGalaApp.MigrationService.csproj" />
     <ProjectReference Include="..\VetrinaGalaApp.Web\VetrinaGalaApp.Web.csproj" />
   </ItemGroup>
 

@@ -33,6 +33,4 @@ var app = builder.Build();
 
     app.Run();
 }
-
-public interface IProgramMarker;
 public partial class Program { }

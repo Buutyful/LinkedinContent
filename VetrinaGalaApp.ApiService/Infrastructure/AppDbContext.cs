@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 
 namespace VetrinaGalaApp.ApiService.Infrastructure;
@@ -64,12 +63,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasMany(i => i.Items)
             .WithOne(c => c.Catalog)
             .HasForeignKey(i => i.CatalogId);
-
-        // Roles
-        var roleConstants = new RoleConstants();
-        var roles = roleConstants.GetConstantRoles().Select(x => new IdentityRole(x)).ToArray();
-        builder.Entity<IdentityRole>()
-            .HasData(roles);
+        
     }
 }
 
