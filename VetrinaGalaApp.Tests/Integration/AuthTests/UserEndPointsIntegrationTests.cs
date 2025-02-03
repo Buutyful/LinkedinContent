@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using Microsoft.AspNetCore.Mvc.Testing;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using VetrinaGalaApp.ApiService.EndPoints;
 
@@ -161,5 +162,35 @@ public class UserEndpointsIntegrationTests(IntegrationTestBase integrationTestBa
 
         // Assert
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+}
+
+public static class UserTestHelpers
+{
+    public static async Task<string> RegisterTestUserAsync(
+        HttpClient client,
+        string username = "testuser",
+        string email = "test@example.com",
+        string password = "SecurePassword123!")
+    {
+        var request = new RegisterAsUserRequest(username, email, password);
+        var response = await client.PostAsJsonAsync("/auth/register", request);
+        response.EnsureSuccessStatusCode();
+
+        var result = await response.Content.ReadFromJsonAsync<AuthenticationResult>();
+
+        return result!.Token;
+    }
+}
+public static class AuthTestHelpers
+{
+    public static HttpClient CreateAuthenticatedClient(
+        WebApplicationFactory<Program> factory,
+        string token)
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", token);
+        return client;
     }
 }

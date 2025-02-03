@@ -71,7 +71,7 @@ public record ItemDto(Guid Id, decimal Price, string Name, string Description)
     public static implicit operator ItemDto(Item item) =>
         new(item.Id, item.Price, item.Name, item.Description);
 }
-
+public record StoreDto(Guid Id, string Name, string Description, Guid UserId);
 public record CreateItemRequest(
     string Name,
     string Description,

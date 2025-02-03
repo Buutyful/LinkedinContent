@@ -43,6 +43,7 @@ public class CreateStoreCommandHandler(
             await _appDbContext.SaveChangesAsync(cancellationToken);
 
             var roleResult = await _manager.AddToRoleAsync(user, RoleConstants.StoreOwner);
+
             if (!roleResult.Succeeded)
                 return Error.Failure(metadata: roleResult.Errors
                     .GroupBy(e => e.Code)

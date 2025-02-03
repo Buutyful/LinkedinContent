@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.Infrastructure;
 
@@ -57,10 +58,13 @@ public sealed class ApiServiceTestFactory : WebApplicationFactory<Program>, IAsy
     public async Task InitializeAsync()
     {
         await _dbContainer.StartAsync();
+        
+        using var context = CreateDbContext();
+        using var roleManager = CreateRoleManager();
 
-        using var scope = Services.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await context.Database.EnsureCreatedAsync();
+
+        await SeedRolesAsync(roleManager);
     }
 
     public new async Task DisposeAsync()
@@ -79,5 +83,26 @@ public sealed class ApiServiceTestFactory : WebApplicationFactory<Program>, IAsy
     {
         var scope = Services.CreateScope();
         return scope.ServiceProvider.GetRequiredService<UserManager<User>>();
+    }
+    public RoleManager<IdentityRole<Guid>> CreateRoleManager()
+    {
+        var scope = Services.CreateScope();
+        return scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<Guid>>>();
+    }
+    public static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager)
+    {
+        var roleNames = new RoleConstants().GetConstantRoles();
+
+        foreach (var roleName in roleNames)
+        {
+            var exists = await roleManager.RoleExistsAsync(roleName);
+            if (!exists)
+            {
+                await roleManager.CreateAsync(new IdentityRole<Guid>(roleName)
+                {
+                    NormalizedName = roleManager.NormalizeKey(roleName)
+                });
+            }
+        }        
     }
 }

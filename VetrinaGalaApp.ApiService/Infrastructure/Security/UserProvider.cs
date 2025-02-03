@@ -2,40 +2,31 @@
 using System.Security.Claims;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
+using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 
 namespace VetrinaGalaApp.ApiService.Infrastructure.Security;
 
 public class UserProvider(IHttpContextAccessor httpContextAccessor) : ICurrentUserProvider
 {
-    private readonly HttpContext _context = httpContextAccessor.HttpContext ??
-        throw new ArgumentNullException();
+    private readonly HttpContext _context = httpContextAccessor.HttpContext
+        ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+
     public CurrentUser GetUser()
     {
         var claimsPrincipal = _context.User;
 
-        var userId = Guid.Parse(claimsPrincipal.Claims
-            .Single(claim => claim.Type == JwtRegisteredClaimNames.Sub).Value);
+        var userId = claimsPrincipal.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? throw new InvalidOperationException("Missing sub claim");
 
-        var email = claimsPrincipal.Claims
-            .Single(claim => claim.Type == JwtRegisteredClaimNames.Email).Value;
+        var email = claimsPrincipal.FindFirstValue(ClaimTypes.Email)
+            ?? throw new InvalidOperationException("Missing email claim");
 
-        var (userType, storeId) = DetermineUserTypeAndStore(claimsPrincipal);
+        var storeId = claimsPrincipal.FindFirstValue(JtwClaimTypesConstants.OwnedStoreId);
 
-        return new CurrentUser(userId, email, userType, storeId);
-    }
-
-    private static (UserType UserType, Guid? StoreId) DetermineUserTypeAndStore(ClaimsPrincipal user)
-    {
-        var storeIdClaim = user.Claims
-            .FirstOrDefault(claim => claim.Type == "OwnedStoreId")?.Value;
-
-        if (string.IsNullOrEmpty(storeIdClaim))
-        {
-            return (UserType.User, null);
-        }
-
-        return Guid.TryParse(storeIdClaim, out var storeId)
-            ? (UserType.StoreOwner, storeId)
-            : (UserType.User, null);
+        return new CurrentUser(
+            Id: Guid.Parse(userId),
+            Email: email,
+            UserType: !string.IsNullOrEmpty(storeId) ? UserType.StoreOwner : UserType.User,
+            StoreId: string.IsNullOrEmpty(storeId) ? null : Guid.Parse(storeId));
     }
 }

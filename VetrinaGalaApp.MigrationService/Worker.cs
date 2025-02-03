@@ -23,9 +23,11 @@ public class Worker(
         {
             using var scope = serviceProvider.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var roleManager = scope.ServiceProvider
+                .GetRequiredService<RoleManager<IdentityRole<Guid>>>();
 
             await RunMigrationAsync(dbContext, cancellationToken);
-            await SeedDataAsync(dbContext, cancellationToken);
+            await SeedRolesAsync(roleManager, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -44,18 +46,21 @@ public class Worker(
             await dbContext.Database.MigrateAsync(cancellationToken);
         });
     }
-    private static async Task SeedDataAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    private static async Task SeedRolesAsync(RoleManager<IdentityRole<Guid>> roleManager, CancellationToken cancellationToken)
     {
-        if (!await dbContext.Roles.AnyAsync(cancellationToken))
-        {
-            var roleConstants = new RoleConstants();
-            var roles = roleConstants.GetConstantRoles()
-                .Select(x => new IdentityRole<Guid>(x))
-                .ToArray();
+        var roleNames = new RoleConstants().GetConstantRoles();
 
-            await dbContext.Roles.AddRangeAsync(roles, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
+        foreach (var roleName in roleNames)
+        {
+            var exists = await roleManager.RoleExistsAsync(roleName);
+            if (!exists)
+            {
+                await roleManager.CreateAsync(new IdentityRole<Guid>(roleName)
+                {                    
+                    NormalizedName = roleManager.NormalizeKey(roleName)
+                });
+            }
         }
     }
-
 }
+

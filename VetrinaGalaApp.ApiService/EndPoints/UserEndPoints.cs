@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Builder;
 using VetrinaGalaApp.ApiService.Application.Authentication;
 
 namespace VetrinaGalaApp.ApiService.EndPoints;

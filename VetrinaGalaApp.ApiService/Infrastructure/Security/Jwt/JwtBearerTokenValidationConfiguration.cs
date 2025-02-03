@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
@@ -21,7 +22,8 @@ public sealed class JwtBearerTokenValidationConfiguration(IOptions<JwtSettings> 
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
             ValidIssuer = _jwtSettings.Issuer,
-            ValidAudience = _jwtSettings.Audience,
+            ValidAudience = _jwtSettings.Audience,            
+            RoleClaimType = ClaimTypes.Role,
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtSettings.Secret)),
         };
