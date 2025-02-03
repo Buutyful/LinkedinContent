@@ -31,6 +31,6 @@ public class IntegrationTestBase : IAsyncLifetime
     public async Task ResetDatabaseAsync()
     {
         await DbContext.Database.EnsureDeletedAsync();
-        await DbContext.Database.EnsureCreatedAsync();
+        await Factory.InitializeAsync();
     }
 }

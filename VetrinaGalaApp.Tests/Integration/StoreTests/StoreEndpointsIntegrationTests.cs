@@ -75,12 +75,15 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
         var response = await client.PostAsJsonAsync("store/register", new CreateStoreRequest("Test Store", "Test Description"));
         response.EnsureSuccessStatusCode();
 
+        var newToken = response.Content.ReadFromJsonAsync<AuthenticationResult>();
+        Assert.NotNull(newToken);
+        using var secondClient = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, newToken.Result.Token);
         // Act
-        var res = await client.PostAsJsonAsync("store/register",
-            new CreateStoreRequest("Second Store", "Should Fail"));
+        var res = await secondClient.PostAsJsonAsync("store/register",
+            new CreateStoreRequest("Second Store", "Should Fail"));        
 
         // Assert
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, res.StatusCode);
     }
 
 
