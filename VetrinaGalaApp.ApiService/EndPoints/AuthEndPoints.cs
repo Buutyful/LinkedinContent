@@ -1,11 +1,12 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Components.Authorization;
 using VetrinaGalaApp.ApiService.Application.Authentication;
 
 namespace VetrinaGalaApp.ApiService.EndPoints;
 
-public static class UserEndPoints
+public static class AuthEndPoints
 {
-    public static IEndpointRouteBuilder MapUserEndPoints(this IEndpointRouteBuilder app)
+    public static IEndpointRouteBuilder MapAuthEndPoints(this IEndpointRouteBuilder app)
     {        
         var group = app.MapGroup("/auth");
 
@@ -41,6 +42,13 @@ public static class UserEndPoints
 
         group.MapGet("/check", () => Results.Ok())
             .RequireAuthorization();
+
+        app.MapGet("/auth/claims", (HttpContext context) =>
+        {
+            return context.User.Claims
+                .Select(c => new ClaimDto(c.Type, c.Value))
+                .ToList();
+        }).RequireAuthorization();
         return app;
     }
 }
@@ -48,5 +56,6 @@ public static class UserEndPoints
 public record AuthenticationRequest(string Email, string Password);
 public record RegisterAsUserRequest(string UserName, string Email, string Password);
 public record AuthenticationResult(Guid SubId, string Email, string Token);
+public record ClaimDto(string Type, string Value);
 
 

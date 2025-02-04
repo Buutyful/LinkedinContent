@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.EndPoints;
+using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 using VetrinaGalaApp.Tests.Integration.AuthTests;
 
 namespace VetrinaGalaApp.Tests.Integration.StoreTests;
@@ -16,7 +17,7 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
     public async Task CreateStore_ForValidUser_ConvertsToStoreOwnerWithAllProperties()
     {
         // Arrange       
-        var token = await UserTestHelpers.RegisterTestUserAsync(_base.Client);
+        var token = await UserTestHelpers.RegisterTestUserAsync(_base.Client, GenerateRandomName(), GenerateRandomEmail());
         using var client = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, token);
 
 
@@ -52,8 +53,7 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
     [Fact]
     public async Task CreateStore_ForNonExistentUser_ReturnsNotFound()
     {
-        // Arrange
-        await _base.ResetDatabaseAsync();
+        // Arrange        
         using var client = _base.Factory.CreateClient();
 
         // Act - Try with random user ID
@@ -67,8 +67,7 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
     [Fact]
     public async Task CreateStore_ForExistingStoreOwner_ReturnsBadRequest()
     {
-        // Arrange
-        await _base.ResetDatabaseAsync();
+        // Arrange        
         var token = await UserTestHelpers.RegisterTestUserAsync(_base.Client);
         using var client = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, token);
 
@@ -88,33 +87,37 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
 
 
 
-    //[Fact]
-    //public async Task CreateStore_WithValidRequest_UpdatesJwtClaims()
-    //{
-    //    // Arrange
-    //    await _base.ResetDatabaseAsync();
-    //    var token = await UserTestHelpers.RegisterTestUserAsync(_base.Client);
-    //    using var client = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, token);
+    [Fact]
+    public async Task CreateStore_WithValidRequest_UpdatesJwtClaims()
+    {
+        // Arrange        
+        var token = await UserTestHelpers.RegisterTestUserAsync(_base.Client, GenerateRandomName(), GenerateRandomEmail());
+        using var client = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, token);
 
-    //    // Act
-    //    var response = await client.PostAsJsonAsync("store/register",
-    //        new CreateStoreRequest("Test Store", "Test Description"));
-    //    response.EnsureSuccessStatusCode();
+        // Act
+        var response = await client.PostAsJsonAsync("store/register",
+            new CreateStoreRequest("Test Store", "Test Description"));
+        response.EnsureSuccessStatusCode();
 
-    //    var result = await response.Content.ReadFromJsonAsync<AuthenticationResult>();
-    //    using var newClient = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, result.Token);
+        var result = await response.Content.ReadFromJsonAsync<AuthenticationResult>();
+        using var newClient = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, result.Token);
 
-    //    // Verify new token has store owner claims
-    //    var checkResponse = await newClient.GetAsync("/auth/check");
-    //    checkResponse.EnsureSuccessStatusCode();
+        // Verify new token has store owner claims
+        var checkResponse = await newClient.GetAsync("/auth/check");
+        checkResponse.EnsureSuccessStatusCode();
 
-    //    var claims = await newClient.GetFromJsonAsync<ClaimDto[]>("/auth/claims");
-    //    Assert.Contains(claims, c => c.Type == "role" && c.Value == RoleConstants.StoreOwner);
-    //    Assert.Contains(claims, c => c.Type == "store_id" && !string.IsNullOrEmpty(c.Value));
-    //}
+        var claims = await newClient.GetFromJsonAsync<ClaimDto[]>("/auth/claims");
+        
+        Assert.Contains(claims, c => c.Type == JtwClaimTypesConstants.OwnedStoreId && !string.IsNullOrEmpty(c.Value));
+    }
+
+    private static string GenerateRandomName() =>
+        new string(Guid.NewGuid().ToString().Take(6).ToArray());
+    private static string GenerateRandomEmail() =>
+        string.Concat(GenerateRandomName(), "@test.com");
 }
 
-public record ClaimDto(string Type, string Value);
+
 //public static class StoreTestHelpers
 //{
 //    public static async Task<Guid> CreateTestStoreAsync(

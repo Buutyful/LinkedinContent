@@ -20,7 +20,7 @@ public static class PresentationDependencyInjection
     public static IEndpointRouteBuilder MapEndPoints(this IEndpointRouteBuilder app)
     {
         app
-            .MapUserEndPoints()
+            .MapAuthEndPoints()
             .MapStoreEndPoints();
 
         return app;
