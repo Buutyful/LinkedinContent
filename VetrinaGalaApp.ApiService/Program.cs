@@ -1,3 +1,4 @@
+using Scalar.AspNetCore;
 using VetrinaGalaApp.ApiService;
 using VetrinaGalaApp.ApiService.Application;
 using VetrinaGalaApp.ApiService.Infrastructure;
@@ -23,6 +24,7 @@ var app = builder.Build();
     if (app.Environment.IsDevelopment())
     {
         app.MapOpenApi();
+        app.MapScalarApiReference();
     }
 
     app.UseAuthentication();
