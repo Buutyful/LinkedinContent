@@ -25,7 +25,12 @@ public static class ResultExtentions
             ErrorType.Unauthorized => Results.Unauthorized(),
             ErrorType.NotFound => Results.NotFound(),
             ErrorType.Forbidden => Results.Forbid(),
-            ErrorType.Conflict => Results.Conflict(),
+            ErrorType.Validation => Results.ValidationProblem(
+                new Dictionary<string, string[]>
+                {
+                    { error.Code, new[] { error.Description } }
+                }),
+            ErrorType.Conflict => Results.Conflict(error.Description),
             _ => Results.Problem(
                 statusCode: StatusCodes.Status500InternalServerError,
                 title: error.Description)
