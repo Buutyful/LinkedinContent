@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace VetrinaGalaApp.ApiService.Domain;
+namespace VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 public enum UserType
 {

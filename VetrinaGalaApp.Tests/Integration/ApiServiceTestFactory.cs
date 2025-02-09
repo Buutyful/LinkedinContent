@@ -5,8 +5,8 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Testcontainers.PostgreSql;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
-using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.Infrastructure;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.Tests.Integration;
 

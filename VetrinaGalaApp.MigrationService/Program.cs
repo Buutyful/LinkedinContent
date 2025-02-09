@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
-using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.Infrastructure;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.MigrationService;
 

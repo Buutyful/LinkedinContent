@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using VetrinaGalaApp.ApiService.Domain;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.Application.Common.Security;
 

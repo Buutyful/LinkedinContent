@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Application.StoreUseCases;
-using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.Infrastructure;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.EndPoints;
 

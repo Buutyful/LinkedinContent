@@ -1,4 +1,4 @@
-﻿namespace VetrinaGalaApp.ApiService.Domain;
+﻿namespace VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 public class Discount
 {

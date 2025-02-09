@@ -4,9 +4,9 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Application.MiddlewareBehaviors;
-using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.EndPoints;
 using VetrinaGalaApp.ApiService.Infrastructure;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.Application.StoreUseCases;
 
