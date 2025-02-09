@@ -35,7 +35,9 @@ public class LoginQueryHandler(
         var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
         if (!isPasswordValid) return Error.Unauthorized(description: "Invalid emial or password");
 
-        var token = _jwtTokenGenerator.GenerateToken(user);
+        var roles = await _userManager.GetRolesAsync(user);
+
+        var token = _jwtTokenGenerator.GenerateToken(user, [.. roles]);
 
         return new AuthenticationResult(user.Id, user.Email!, token);
     }

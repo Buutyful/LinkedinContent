@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Json;
+using System.Security.Claims;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Domain;
 using VetrinaGalaApp.ApiService.EndPoints;
@@ -14,7 +15,7 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
     private readonly IntegrationTestBase _base = integrationTestBase;
 
     [Fact]
-    public async Task CreateStore_ForValidUser_ConvertsToStoreOwnerWithAllProperties()
+    public async Task CreateStore_ForValidUser_ConvertsToStoreOwner()
     {
         // Arrange       
         var token = await UserTestHelpers.RegisterTestUserAsync(_base.Client, GenerateRandomName(), GenerateRandomEmail());
@@ -102,14 +103,16 @@ public class StoreOwnerConversionTests(IntegrationTestBase integrationTestBase)
         var result = await response.Content.ReadFromJsonAsync<AuthenticationResult>();
         using var newClient = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, result.Token);
 
-        // Verify new token has store owner claims
+        // Verify new token has correct claims
         var checkResponse = await newClient.GetAsync("/auth/check");
         checkResponse.EnsureSuccessStatusCode();
 
         var claims = await newClient.GetFromJsonAsync<ClaimDto[]>("/auth/claims");
         
         Assert.Contains(claims, c => c.Type == JtwClaimTypesConstants.OwnedStoreId && !string.IsNullOrEmpty(c.Value));
+        Assert.Contains(claims, c => c.Type == ClaimTypes.Role && c.Value == RoleConstants.StoreOwner);
     }
+    
 
     private static string GenerateRandomName() =>
         new string(Guid.NewGuid().ToString().Take(6).ToArray());

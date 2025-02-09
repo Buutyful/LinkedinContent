@@ -51,9 +51,10 @@ public class CreateStoreCommandHandler(
                     g => g.Key,
                     g => (object)g.Select(e => e.Description).ToArray()));
 
+            var roles = await _manager.GetRolesAsync(user);
             await transaction.CommitAsync(cancellationToken);
 
-            var token = _jwtTokenGenerator.GenerateToken(user);
+            var token = _jwtTokenGenerator.GenerateToken(user, [.. roles]);
             return new AuthenticationResult(user.Id, user.Email!, token);
         }
         catch(Exception e)

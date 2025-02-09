@@ -1,4 +1,5 @@
-﻿using VetrinaGalaApp.ApiService.Domain;
+﻿using Microsoft.AspNetCore.Identity;
+using VetrinaGalaApp.ApiService.Domain;
 
 namespace VetrinaGalaApp.ApiService.Application.Common.Security;
 
@@ -10,5 +11,5 @@ public interface ICurrentUserProvider
 public interface IJwtTokenGenerator
 {
     //TODO: add relevant claims
-    public string GenerateToken(User user);
+    public string GenerateToken(User user, List<string> roles);
 }

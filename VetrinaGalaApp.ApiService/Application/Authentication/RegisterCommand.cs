@@ -53,7 +53,7 @@ public class RegisterCommandHandler(
 
         //generate token
 
-        var token = _jwtTokenGenerator.GenerateToken(user);
+        var token = _jwtTokenGenerator.GenerateToken(user, []);
 
         return new AuthenticationResult(user.Id, user.Email, token);
     }
