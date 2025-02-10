@@ -4,7 +4,8 @@ public enum CatalogType
 {
     Scarpe,
     Pantaloni,
-    Giacche
+    Giacche,
+    Altro
 }
 
 public class Catalog
@@ -12,5 +13,7 @@ public class Catalog
     public Guid Id { get; set; }
     public Guid StoreId { get; set; }
     public CatalogType Type { get; set; }
+
+    //Navigations
     public List<Item> Items { get; set; } = new();
 }

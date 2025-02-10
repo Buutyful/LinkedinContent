@@ -11,5 +11,8 @@ public enum UserType
 public class User : IdentityUser<Guid>
 {
     public UserType UserType { get; set; }
+
+    // Relationships
     public Store? Store { get; set; }
+    public List<Swipe> Swipes { get; set; } = new();
 }
