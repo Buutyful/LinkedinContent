@@ -1,12 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using VetrinaGalaApp.ApiService.Domain.UserDomain;
 
 namespace VetrinaGalaApp.ApiService.Infrastructure.Models;
-
-public enum UserType
-{
-    User,
-    StoreOwner
-}
 
 public class User : IdentityUser<Guid>
 {

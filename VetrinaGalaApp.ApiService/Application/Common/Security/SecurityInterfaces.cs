@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using VetrinaGalaApp.ApiService.Domain.UserDomain;
 using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.Application.Common.Security;
+
 
 public record CurrentUser(Guid Id, string Email, UserType UserType, Guid? StoreId);
 public interface ICurrentUserProvider
