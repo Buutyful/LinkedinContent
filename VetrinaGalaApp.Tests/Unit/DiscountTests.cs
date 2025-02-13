@@ -56,19 +56,19 @@ public class DiscountTests
         // Arrange
         var price = new Price(100, Currency.Dollars);
         var discount1 = new Discount(0.1m); // 10% discount
-        var discount2 = new Discount(0.2m); // 20% discount
+        var discount2 = new Discount(0.1m); // 20% discount
         var discount3 = new Discount(0.6m); // 60% discount
-        var multipleDiscounts = new ChainedDiscounts(discount1, discount2);
-        var applayableDiscounts = new PriceLimitedDiscounts(multipleDiscounts, 0.25m); // Minimum price 75
+        var multipleDiscounts = new ChainedDiscounts(discount1, discount2, discount3);
+        var applayableDiscounts = new PriceLimitedDiscounts(multipleDiscounts, 0.35m); // Minimum price 65
 
         // Act
         var results = applayableDiscounts.GetAppliedDiscounts(price).ToList();
 
         // Assert
-        Assert.Equal(2, results.Count);
+        Assert.Equal(3, results.Count);
         var totalDiscount = results.Sum(r => r.DiscountedAmount.Amount);
 
-        Assert.True(price with { Amount = price.Amount - totalDiscount } == price * 0.75m);
+        Assert.True(price with { Amount = price.Amount - totalDiscount } == price * 0.65m);
     }
 
     [Fact]

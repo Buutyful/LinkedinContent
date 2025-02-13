@@ -19,7 +19,7 @@ public class PriceLimitedDiscounts : IDiscount
         var minimumPrice = applayedTo -  (applayedTo * MaxDiscountAmount);
         var currentPrice = applayedTo;
 
-        using var discountEnumerator = Other.GetAppliedDiscounts(applayedTo).GetEnumerator();
+        using var discountEnumerator = Other.GetAppliedDiscounts(currentPrice).GetEnumerator();
 
         while (discountEnumerator.MoveNext())
         {
