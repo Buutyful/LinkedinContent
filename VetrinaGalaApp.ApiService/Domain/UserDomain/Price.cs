@@ -8,7 +8,7 @@ public readonly record struct Price : IComparable<Price>
 
     public Price(decimal amount, Currency currency)
     {
-        if (amount <= 0)
+        if (amount < 0)
             throw new InvalidOperationException("Item price must be greater than zero");
         this.Amount = amount;
         this.Currency = currency;
