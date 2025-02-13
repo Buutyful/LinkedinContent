@@ -8,7 +8,7 @@ public class Discount : IDiscount
     {
         if (amount <= 0)
             throw new InvalidOperationException("Discount must be greater than zero");
-        if (amount >= 1)
+        if (amount > 1)
             throw new InvalidOperationException("Discount cant surpass the toal price");
         AmountPercentage = amount;
     }

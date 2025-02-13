@@ -25,16 +25,14 @@ public class PriceLimitedDiscounts : IDiscount
         {
             var discount = discountEnumerator.Current;
 
-            if (currentPrice - discount.DiscountedAmount > minimumPrice)
-            {
-                yield return discount;
-                currentPrice -= discount.DiscountedAmount;
-            }
-            else
+            if (currentPrice - discount.DiscountedAmount <= minimumPrice)
             {
                 yield return discount with { DiscountedAmount = currentPrice - minimumPrice };
-                yield break;
+                yield break;               
             }
+
+            yield return discount;
+            currentPrice -= discount.DiscountedAmount;
         }
     }
 }

@@ -13,12 +13,7 @@ public class ChainedDiscounts(params IEnumerable<IDiscount> discounts) : IDiscou
         {
             foreach (var applayedDiscount in discount.GetAppliedDiscounts(resultingPirce))
             {
-                var applied =
-                     applayedDiscount.DiscountedAmount.CompareTo(resultingPirce) <= 0 ?
-                         applayedDiscount :
-                         applayedDiscount with { DiscountedAmount = resultingPirce };
-
-                yield return applied;
+                yield return applayedDiscount;
 
                 resultingPirce -= applayedDiscount.DiscountedAmount;
 
