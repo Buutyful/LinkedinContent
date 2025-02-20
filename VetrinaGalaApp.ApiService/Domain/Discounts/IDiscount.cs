@@ -13,6 +13,7 @@ public record DiscountApplication(Money DiscountedAmount, Money AppliedTo, decim
 
 public static class DiscountExtentions
 {
+    //TODO: create a discount domain dto to decouple domain from infra
     public static IDiscount CreateDiscountStrategy(
         this IList<Discount> discounts,
         decimal discountCap = 0.40m) =>
