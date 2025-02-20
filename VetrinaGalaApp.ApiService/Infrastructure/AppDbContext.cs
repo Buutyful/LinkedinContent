@@ -36,6 +36,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             .HasForeignKey(i => i.StoreId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        builder.Entity<Item>()
+            .Property(i => i.Currency)
+            .HasConversion<string>();
+
         // Discount Configuration
         builder.Entity<Discount>(entity =>
         {

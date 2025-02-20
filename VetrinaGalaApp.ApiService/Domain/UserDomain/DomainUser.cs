@@ -31,7 +31,7 @@ public class UserFeedQueue
     {
         ArgumentNullException.ThrowIfNull(items);
 
-        _swipeQueue.EnqueueRange(items.Select(item => (item, -item.MMR)));
+        _swipeQueue.EnqueueRange(items.Select(item => (item, -item.RatingMetrics.MMR)));
     }
 
     public ErrorOr<Success> Swipe(bool like)
@@ -45,7 +45,14 @@ public class UserFeedQueue
             _currentItem = nextItemResult.Value;
         }
 
-        _currentItem.UpdateMMR(like);        
+        if (like)
+        {
+            _currentItem.RatingMetrics.AddLike();
+        }
+        else
+        {
+            _currentItem.RatingMetrics.AddDislike();
+        }
 
         _currentItem = null;
         return Result.Success;

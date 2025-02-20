@@ -4,7 +4,7 @@ namespace VetrinaGalaApp.ApiService.Domain.Discounts;
 public class ChainedDiscounts(params IEnumerable<IDiscount> discounts) : IDiscount
 {
     private readonly IEnumerable<IDiscount> _discounts = discounts;
-    public IEnumerable<DiscountApplication> GetAppliedDiscounts(Price applayedTo)
+    public IEnumerable<DiscountApplication> GetAppliedDiscounts(Money applayedTo)
     {
 
         var resultingPirce = applayedTo;
@@ -17,7 +17,7 @@ public class ChainedDiscounts(params IEnumerable<IDiscount> discounts) : IDiscou
 
                 resultingPirce -= applayedDiscount.DiscountedAmount;
 
-                if (resultingPirce == Price.Zero(resultingPirce.Currency))
+                if (resultingPirce == Money.Zero(resultingPirce.Currency))
                     yield break;
             }
         }

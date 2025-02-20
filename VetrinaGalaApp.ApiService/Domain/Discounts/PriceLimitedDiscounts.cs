@@ -13,7 +13,7 @@ public class PriceLimitedDiscounts : IDiscount
         MaxDiscountAmount = cap;
         Other = other;        
     }
-    public IEnumerable<DiscountApplication> GetAppliedDiscounts(Price applayedTo)
+    public IEnumerable<DiscountApplication> GetAppliedDiscounts(Money applayedTo)
     {
 
         var minimumPrice = applayedTo -  (applayedTo * MaxDiscountAmount);
