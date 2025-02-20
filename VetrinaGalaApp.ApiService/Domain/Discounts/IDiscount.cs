@@ -1,6 +1,4 @@
-﻿using System;
-using VetrinaGalaApp.ApiService.Application.StoreUseCases.Services;
-using VetrinaGalaApp.ApiService.Domain.UserDomain;
+﻿using VetrinaGalaApp.ApiService.Domain.UserDomain;
 using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.Domain.Discounts;

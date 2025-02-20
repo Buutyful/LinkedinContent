@@ -20,10 +20,14 @@ public class StoreDiscounts
     private readonly AppDbContext _context = context;
     public ItemPriceLable GetDiscountsResult(DomainItem item)
     {
+        var currentDate = DateTime.UtcNow;
+
         var storeDiscounts =
              _context.Discounts
              .AsNoTracking()
-             .Where(x => x.StoreId == item.StoreId)
+             .Where(x => x.StoreId == item.StoreId
+                && x.StartDate <= currentDate
+                && x.EndDate >= currentDate)
              .ToList();
 
         //TODO: add a store field for the discount cap allowed on store items
