@@ -10,8 +10,7 @@ public interface IDiscount
 public record DiscountApplication(Money DiscountedAmount, Money AppliedTo, decimal DiscountPercentage);
 
 public static class DiscountExtentions
-{
-    //TODO: create a discount domain dto to decouple domain from infra
+{   
     public static IDiscount CreateDiscountStrategy(
         this IList<Discount> discounts,
         decimal discountCap = 0.40m) =>
@@ -22,9 +21,8 @@ public static class DiscountExtentions
             var many => new PriceLimitedDiscounts
                         (
                             new ChainedDiscounts(
-                                discounts
-                                .Select(d => new SingleDiscount(d.Percentage))),
-                            discountCap
+                                many.Select(d => new SingleDiscount(d.Percentage))),
+                                discountCap
                         )
         };
     public static Money FinalDiscountPrice(
