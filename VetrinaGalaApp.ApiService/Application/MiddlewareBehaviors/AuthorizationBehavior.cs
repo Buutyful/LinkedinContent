@@ -58,11 +58,15 @@ public class AuthorizationBehavior<TRequest, TResponse>
 
         // All policies must pass, if an or behavior is needed change to Any
         if (!authResults.All(res => res.Succeeded))
-        {            
-            var error = Error.Forbidden("You don't have permission to access this resource");
+        {
+            var failedPolicies = policies
+                 .Zip(authResults, (p, r) => new { Policy = p, r.Succeeded })
+                 .Where(x => !x.Succeeded)
+                 .Select(x => x.Policy);
+
+            var error = Error.Forbidden($"Authorization failed for policies: {string.Join(", ", failedPolicies)}");
 
             var errorOr = ErrorOr<TResponse>.From([error]);
-
             return (TResponse)(IErrorOr)errorOr;
         }
 

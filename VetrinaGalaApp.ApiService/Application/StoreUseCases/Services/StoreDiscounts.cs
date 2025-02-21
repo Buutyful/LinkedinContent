@@ -28,6 +28,7 @@ public class StoreDiscounts
              .Where(x => x.StoreId == item.StoreId
                 && x.StartDate <= currentDate
                 && x.EndDate >= currentDate)
+             .Select(x => new DiscountDto(x.Percentage))
              .ToList();
 
         //TODO: add a store field for the discount cap allowed on store items

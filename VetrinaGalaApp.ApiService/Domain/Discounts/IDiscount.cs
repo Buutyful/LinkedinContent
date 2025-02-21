@@ -1,5 +1,4 @@
 ﻿using VetrinaGalaApp.ApiService.Domain.UserDomain;
-using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.Domain.Discounts;
 
@@ -12,7 +11,7 @@ public record DiscountApplication(Money DiscountedAmount, Money AppliedTo, decim
 public static class DiscountExtentions
 {   
     public static IDiscount CreateDiscountStrategy(
-        this IList<Discount> discounts,
+        this IList<DiscountDto> discounts,
         decimal discountCap = 0.40m) =>
         discounts switch
         {
@@ -32,3 +31,5 @@ public static class DiscountExtentions
             .Aggregate(Money.Zero(currency),
                 (cur, next) => cur + next.DiscountedAmount);
 }
+
+public record DiscountDto(decimal Percentage);

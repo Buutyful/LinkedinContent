@@ -2,21 +2,36 @@ using System.Diagnostics;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
+//Postgres server
 var postgres = builder.AddPostgres("postgres")
                       .WithPgAdmin()
                       .WithDataVolume()
                       .WithLifetime(ContainerLifetime.Persistent);
+//MinIO container
+var minio = builder.AddContainer("minio", "minio/minio")
+                   .WithArgs("server", "/data", "--console-address", ":9001")
+                   .WithEnvironment("MINIO_ROOT_USER", "minioadmin")
+                   .WithEnvironment("MINIO_ROOT_PASSWORD", "minioadmin")
+                   .WithBindMount("minio-data", "/data") // Persistent storage
+                   .WithHttpEndpoint(targetPort: 9000, name: "http", isProxied: true) // MinIO API
+                   .WithHttpEndpoint(targetPort: 9001, name: "console", isProxied: true) // MinIO Console
+                   .WithLifetime(ContainerLifetime.Persistent);
 
+//Postgres db
 var postgresdb = postgres.AddDatabase("postgresdb");
 
+//Migration Service
 var migrator = builder.AddProject<Projects.VetrinaGalaApp_MigrationService>("migrations")
                        .WithReference(postgresdb);
 
+//Api Service
 var apiService = builder.AddProject<Projects.VetrinaGalaApp_ApiService>("apiservice")
     .WithReference(postgresdb)
+    .WithReference(minio.GetEndpoint("http")) // Reference MinIO API endpoint
     .WithScalar()
     .WaitFor(migrator);
 
+//Web client
 builder.AddProject<Projects.VetrinaGalaApp_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithReference(apiService)
@@ -57,3 +72,4 @@ public static class ResourceBuilderExtentsions
         return builder;
     }
 }
+

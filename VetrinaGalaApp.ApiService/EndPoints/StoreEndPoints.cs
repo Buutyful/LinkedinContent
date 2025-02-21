@@ -2,6 +2,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Minio;
+using Minio.DataModel.Args;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Application.StoreUseCases;
 using VetrinaGalaApp.ApiService.Domain.UserDomain;
@@ -30,16 +32,31 @@ public static class StoreEndPoints
                 return Results.Ok(items);
             });
 
-            group.MapPost("/{storeId:guid}",
-                async (Guid storeId,
-                CreateItemRequest request,
-                ISender sender) =>
+            group.MapPost("/{storeId:guid}", async (Guid storeId, CreateItemRequest request, ISender sender, IMinioClient minioClient) =>
             {
                 var resp = await sender.Send(new CreateItemCommand(storeId, request));
+                return await resp.MatchAsync(
+                    async item =>
+                    {
+                        // Define the object key for the image upload
+                        // TODO: Move bucket name to configuration
+                        string bucketName = "images";
+                        string objectKey = $"items/{item.Id}/image.jpg";
 
-                return resp.Match(
-                    item => Results.Ok((ItemDto)item),
-                    errors => errors.ToResult());
+                        // Generate pre-signed URL for uploading the image
+                        string uploadUrl = await minioClient.PresignedPutObjectAsync(new PresignedPutObjectArgs()
+                            .WithBucket(bucketName)
+                            .WithObject(objectKey)
+                            .WithExpiry(3600)); // URL expires in 1 hour
+
+                        // Return item details and upload URL
+                        return Results.Ok(new
+                        {
+                            Item = (ItemDto)item,
+                            UploadUrl = uploadUrl
+                        });
+                    },
+                    errors => (Task<IResult>)errors.ToResult());
             });
         }
 
@@ -67,10 +84,10 @@ public static class StoreEndPoints
     }
 }
 
-public record ItemDto(Guid Id, decimal Price, string Name, string Description)
+public record ItemDto(Guid Id, string Name, string Description, decimal Price, string ImgUrl)
 {
     public static implicit operator ItemDto(Item item) =>
-        new(item.Id, item.Price, item.Name, item.Description);
+        new(item.Id, item.Name, item.Description, item.Price, item.ImgUrl);
 }
 public record StoreDto(Guid Id, string Name, string Description, Guid UserId);
 public record CreateItemRequest(
