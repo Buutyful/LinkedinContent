@@ -3,6 +3,7 @@ using Google.Apis.Auth;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
+using VetrinaGalaApp.ApiService.Domain.UserDomain;
 using VetrinaGalaApp.ApiService.EndPoints;
 using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
@@ -39,7 +40,7 @@ public class LoginWithGoogleQueryHandler : IRequestHandler<LoginWithGoogleComman
         // Set up validation settings with audience check
         var validationSettings = new GoogleJsonWebSignature.ValidationSettings
         {
-            Audience = [clientId] // Ensure the token is for this app
+            Audience = [clientId]
         };
 
         try
@@ -69,7 +70,8 @@ public class LoginWithGoogleQueryHandler : IRequestHandler<LoginWithGoogleComman
             {
                 Id = Guid.NewGuid(),
                 UserName = email,
-                Email = email
+                Email = email,
+                UserType = UserType.User                
             };
 
             var createResult = await _userManager.CreateAsync(user);
@@ -94,7 +96,7 @@ public class LoginWithGoogleQueryHandler : IRequestHandler<LoginWithGoogleComman
             var newUserToken = _jwtTokenGenerator.GenerateToken(user, userRoles.ToList());
             return new AuthenticationResult(user.Id, user.Email, newUserToken);
         }
-        catch
+        catch(Exception ex)
         {
             return Error.Unauthorized(description: $"Invalid Google ID token: {ex.Message}");
         }
