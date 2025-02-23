@@ -7,41 +7,54 @@ namespace VetrinaGalaApp.ApiService.EndPoints;
 public static class AuthEndPoints
 {
     public static IEndpointRouteBuilder MapAuthEndPoints(this IEndpointRouteBuilder app)
-    {        
+    {
         var group = app.MapGroup("/auth");
+        {
+            group.MapPost("/login/google", async (
+            LoginWithGoogleRequest request,
+            ISender sender) =>
+            {
+                var result = await sender.Send(new LoginWithGoogleCommand(request.IdToken));
+                return result.Match(
+                    authResult => Results.Ok(authResult),
+                    errors => errors.ToResult());
+            });
 
-        group.MapPost("/register", async (
+            group.MapPost("/register", async (
             RegisterAsUserRequest request,
             ISender sender) =>
-        {
-            var registerCommand = new RegisterCommand(
-                request.UserName,
-                request.Email,
-                request.Password);
+            {
+                var registerCommand = new RegisterCommand(
+                    request.UserName,
+                    request.Email,
+                    request.Password);
 
-            var result = await sender.Send(registerCommand);
+                var result = await sender.Send(registerCommand);
 
-            return result.Match(
-                res => Results.Ok(res),
-                errors => errors.ToResult());
-        });
+                return result.Match(
+                    res => Results.Ok(res),
+                    errors => errors.ToResult());
+            });
 
 
-        group.MapPost("/login", async (
-          AuthenticationRequest request,
-          ISender sender) =>
-        {
-            var loginQuery = new LoginQuery(request.Email, request.Password);
+            group.MapPost("/login", async (
+              AuthenticationRequest request,
+              ISender sender) =>
+            {
+                var loginQuery = new LoginQuery(request.Email, request.Password);
 
-            var result = await sender.Send(loginQuery);
+                var result = await sender.Send(loginQuery);
 
-            return result.Match(
-                res => Results.Ok(res),
-                errors => errors.ToResult());
-        });
+                return result.Match(
+                    res => Results.Ok(res),
+                    errors => errors.ToResult());
+            });
 
-        group.MapGet("/check", () => Results.Ok())
-            .RequireAuthorization();
+            group.MapGet("/check", () => Results.Ok())
+                .RequireAuthorization();
+        }
+
+
 
         app.MapGet("/auth/claims", (HttpContext context) =>
         {
@@ -53,6 +66,7 @@ public static class AuthEndPoints
     }
 }
 
+public record LoginWithGoogleRequest(string IdToken);
 public record AuthenticationRequest(string Email, string Password);
 public record RegisterAsUserRequest(string UserName, string Email, string Password);
 public record AuthenticationResult(Guid SubId, string Email, string Token);
