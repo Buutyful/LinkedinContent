@@ -47,9 +47,10 @@ public static class InfraDependencyInjection
         services.AddSingleton<IMinioClient>(provider => 
         {
             var settings = provider.GetRequiredService<IOptions<MinioSettings>>().Value;
+            var endpoint = Environment.GetEnvironmentVariable("services__minio__http") ?? "http://localhost:9000";
 
             return new MinioClient()
-                .WithEndpoint(settings.Endpoint)
+                .WithEndpoint(endpoint)
                 .WithCredentials(settings.AccessKey, settings.SecretKey)
                 .WithSSL(settings.UseSSL)
                 .Build();
