@@ -2,8 +2,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Minio;
-using Minio.DataModel.Args;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
 using VetrinaGalaApp.ApiService.Application.StoreUseCases;
 using VetrinaGalaApp.ApiService.Domain.UserDomain;
@@ -32,53 +30,38 @@ public static class StoreEndPoints
                 return Results.Ok(items);
             });
 
-            group.MapPost("/{storeId:guid}", async (Guid storeId, CreateItemRequest request, ISender sender, IMinioClient minioClient) =>
+            group.MapPost("/{storeId:guid}", async (Guid storeId, CreateItemRequest request, ISender sender) =>
             {
                 var resp = await sender.Send(new CreateItemCommand(storeId, request));
-                return await resp.MatchAsync(
-                    async item =>
+                return resp.Match(
+                    result => Results.Ok(new
                     {
-                        // Define the object key for the image upload
-                        // TODO: Move bucket name to configuration
-                        string bucketName = "images";
-                        string objectKey = $"items/{item.Id}/image.jpg";
-
-                        // Generate pre-signed URL for uploading the image
-                        string uploadUrl = await minioClient.PresignedPutObjectAsync(new PresignedPutObjectArgs()
-                            .WithBucket(bucketName)
-                            .WithObject(objectKey)
-                            .WithExpiry(3600)); // URL expires in 1 hour
-
-                        // Return item details and upload URL
-                        return Results.Ok(new
-                        {
-                            Item = (ItemDto)item,
-                            UploadUrl = uploadUrl
-                        });
-                    },
-                    errors => (Task<IResult>)errors.ToResult());
+                        Item = (ItemDto)result.Item,
+                        UploadUrl = result.UploadUrl
+                    }),
+                    errors => errors.ToResult());
             });
+
         }
 
-
         app.MapPost("store/register", async Task<IResult> (
-          CreateStoreRequest request,
-          ICurrentUserProvider userProvider,
-          ISender sender) =>
-        {
-            var currentUser = userProvider.GetUser();
-
-            if (currentUser.UserType is UserType.StoreOwner)
+              CreateStoreRequest request,
+              ICurrentUserProvider userProvider,
+              ISender sender) =>
             {
-                return Results.BadRequest();
-            }
-            var result = await sender.Send(new CreateStoreCommand(currentUser.Id, request));
+                var currentUser = userProvider.GetUser();
 
-            return result.Match(
-                res => Results.Ok(res),
-                errors => errors.ToResult());
+                if (currentUser.UserType is UserType.StoreOwner)
+                {
+                    return Results.BadRequest();
+                }
+                var result = await sender.Send(new CreateStoreCommand(currentUser.Id, request));
 
-        }).RequireAuthorization();
+                return result.Match(
+                    res => Results.Ok(res),
+                    errors => errors.ToResult());
+
+            }).RequireAuthorization();
 
         return app;
     }

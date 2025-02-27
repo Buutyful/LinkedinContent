@@ -37,7 +37,7 @@ public class StoreDiscounts
 
         var discApllications = discount.GetAppliedDiscounts(item.Price);
 
-        var finalPrice = discApllications.FinalDiscountPrice(item.Price.Currency);
+        var finalPrice = discApllications.FinalDiscountedAmount(item.Price.Currency);
 
         return new ItemPriceLable(item.Price, finalPrice, discApllications);
     }

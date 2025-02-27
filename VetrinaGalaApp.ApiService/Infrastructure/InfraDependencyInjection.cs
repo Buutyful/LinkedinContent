@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Minio;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
+using VetrinaGalaApp.ApiService.Infrastructure.MinIo;
 using VetrinaGalaApp.ApiService.Infrastructure.Models;
 using VetrinaGalaApp.ApiService.Infrastructure.Security;
 using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
@@ -17,6 +19,10 @@ public static class InfraDependencyInjection
     {
         builder.AddNpgsqlDbContext<AppDbContext>(connectionName: "postgresdb");
 
+        services
+            .AddMinioClient(builder.Configuration)
+            .AddSecurity(builder.Configuration);
+
         services.AddIdentity<User, IdentityRole<Guid>>(options =>
         {
             options.Password.RequiredLength = 6;
@@ -29,9 +35,34 @@ public static class InfraDependencyInjection
 
         })
             .AddEntityFrameworkStores<AppDbContext>()
-            .AddDefaultTokenProviders();       
+            .AddDefaultTokenProviders();
 
-        services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.Section));
+        return services;
+    }
+    private static IServiceCollection AddMinioClient(this IServiceCollection services, IConfiguration configuration)
+    {        
+        services.Configure<MinioSettings>(configuration.GetSection("MinioSettings"));
+
+        // Register MinIO client
+        services.AddSingleton<IMinioClient>(provider => 
+        {
+            var settings = provider.GetRequiredService<IOptions<MinioSettings>>().Value;
+
+            return new MinioClient()
+                .WithEndpoint(settings.Endpoint)
+                .WithCredentials(settings.AccessKey, settings.SecretKey)
+                .WithSSL(settings.UseSSL)
+                .Build();
+        });
+
+        services.AddScoped<IMinioService, MinioService>();
+
+        return services;
+    }
+
+    private static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Section));
 
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services
@@ -41,26 +72,10 @@ public static class InfraDependencyInjection
               options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
               options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
           })
-          .AddJwtBearer();        
-   
-        // Register MinIO client instead of IAmazonS3
-        services.AddSingleton<IMinioClient>(sp =>
-        {
-            var config = sp.GetRequiredService<IConfiguration>();
-            var minioUrl = config["minio:http"];
-            if (string.IsNullOrEmpty(minioUrl))
-            {
-                throw new InvalidOperationException("MinIO endpoint URL is not configured.");
-            }
-
-            return new MinioClient()
-                .WithEndpoint(minioUrl)
-                .WithCredentials("minioadmin", "minioadmin") //TODO: Replace with actual credentials
-                .Build();
-        });
-
+          .AddJwtBearer();
 
         services.AddScoped<ICurrentUserProvider, UserProvider>();
+
         return services;
     }
 }

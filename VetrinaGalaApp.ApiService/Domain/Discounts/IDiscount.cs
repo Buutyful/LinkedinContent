@@ -24,7 +24,9 @@ public static class DiscountExtentions
                                 discountCap
                         )
         };
-    public static Money FinalDiscountPrice(
+
+    //Returns the final price after all discounts are applied
+    public static Money FinalDiscountedAmount(
             this IEnumerable<DiscountApplication> discountApplications,
             Currency currency) =>
             discountApplications

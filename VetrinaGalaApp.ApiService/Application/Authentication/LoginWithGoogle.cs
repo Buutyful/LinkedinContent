@@ -10,7 +10,7 @@ using VetrinaGalaApp.ApiService.Infrastructure.Models;
 namespace VetrinaGalaApp.ApiService.Application.Authentication;
 public record LoginWithGoogleCommand(string IdToken) : IRequest<ErrorOr<AuthenticationResult>>;
 
-public class LoginWithGoogleQueryHandler(
+public class LoginWithGoogleCommandHandler(
     UserManager<User> userManager,
     IJwtTokenGenerator jwtTokenGenerator,
     IConfiguration configuration) : IRequestHandler<LoginWithGoogleCommand, ErrorOr<AuthenticationResult>>
