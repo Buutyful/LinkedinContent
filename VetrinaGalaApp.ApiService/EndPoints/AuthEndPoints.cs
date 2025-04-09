@@ -16,6 +16,27 @@ public static class AuthEndPoints
     {
         var group = app.MapGroup("/auth");
         {
+            group.MapGet("/login/google-initiate", (
+               HttpContext httpContext,
+               SignInManager<User> signInManager,
+               string? returnUrl = "/") => // Optional: Where to redirect within SPA after full login          
+            {
+                var provider = "Google";
+                
+                var callbackUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}/signin-google";
+
+                // Configure properties for the external authentication challenge
+                // The RedirectUri tells the middleware where Google should redirect back to.                
+                var properties = signInManager.ConfigureExternalAuthenticationProperties(
+                    provider,
+                    callbackUrl);
+
+                // Trigger the authentication challenge.
+                // The Google middleware will intercept this and generate a 302 Redirect
+                // response to Google's authentication endpoint.
+                return Results.Challenge(properties, [provider]);
+            });
+
             // This endpoint is used to login with Google when the client has already the id token (implicit flow)
             group.MapPost("/login/google", async (
             LoginWithGoogleRequest request,
