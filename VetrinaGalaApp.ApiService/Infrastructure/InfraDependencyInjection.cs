@@ -40,11 +40,11 @@ public static class InfraDependencyInjection
         return services;
     }
     private static IServiceCollection AddMinioClient(this IServiceCollection services, IConfiguration configuration)
-    {        
+    {
         services.Configure<MinioSettings>(configuration.GetSection("MinioSettings"));
 
         // Register MinIO client
-        services.AddSingleton<IMinioClient>(provider => 
+        services.AddSingleton<IMinioClient>(provider =>
         {
             var settings = provider.GetRequiredService<IOptions<MinioSettings>>().Value;
             var endpoint = Environment.GetEnvironmentVariable("services__minio__http") ?? "http://localhost:9000";
@@ -74,7 +74,23 @@ public static class InfraDependencyInjection
               options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
               options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
           })
-          .AddJwtBearer();
+          .AddJwtBearer()
+          .AddCookie(IdentityConstants.ExternalScheme)
+          .AddGoogle(options =>
+          {
+              var googleSettings = configuration.GetSection("Google").Get<GoogleSettings>();
+
+              if (googleSettings == null || string.IsNullOrEmpty(googleSettings.ClientId) || string.IsNullOrEmpty(googleSettings.ClientSecret))
+              {
+                  throw new InvalidOperationException("Google ClientId and ClientSecret must be configured.");
+              }
+
+              options.ClientId = googleSettings.ClientId;
+              options.ClientSecret = googleSettings.ClientSecret;
+              // IMPORTANT: Tell Google handler to use the External Cookie scheme
+              // This allows SignInManager.GetExternalLoginInfoAsync() to work correctly
+              options.SignInScheme = IdentityConstants.ExternalScheme;
+          });
 
         services.AddScoped<ICurrentUserProvider, UserProvider>();
 

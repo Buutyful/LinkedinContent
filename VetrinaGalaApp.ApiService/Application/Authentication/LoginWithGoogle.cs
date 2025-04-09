@@ -1,95 +1,66 @@
 ﻿using ErrorOr;
 using Google.Apis.Auth;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
-using VetrinaGalaApp.ApiService.Application.Common.Security;
-using VetrinaGalaApp.ApiService.Domain.UserDomain;
+using Microsoft.Extensions.Options;
+using System.Security.Claims;
 using VetrinaGalaApp.ApiService.EndPoints;
-using VetrinaGalaApp.ApiService.Infrastructure.Models;
+using VetrinaGalaApp.ApiService.Infrastructure.Security;
 
 namespace VetrinaGalaApp.ApiService.Application.Authentication;
 
-//This token is obtained from the client-side after a user successfully signs in with their Google account
+
 public record LoginWithGoogleCommand(string IdToken) : IRequest<ErrorOr<AuthenticationResult>>;
 
 //If a google login wasnt already present, creates a new user with the email from the token
 public class LoginWithGoogleCommandHandler(
-    UserManager<User> userManager,
-    IJwtTokenGenerator jwtTokenGenerator,
-    IConfiguration configuration) : IRequestHandler<LoginWithGoogleCommand, ErrorOr<AuthenticationResult>>
+    IOptions<GoogleSettings> googleSettings,
+    ISender sender) : IRequestHandler<LoginWithGoogleCommand, ErrorOr<AuthenticationResult>>
 {
-    private readonly UserManager<User> _userManager = userManager;
-    private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
-    private readonly IConfiguration _configuration = configuration;
+    private readonly GoogleSettings _googleSettings = googleSettings.Value;
+    private readonly ISender _sender = sender;
 
     public async Task<ErrorOr<AuthenticationResult>> Handle(
         LoginWithGoogleCommand request,
         CancellationToken cancellationToken)
     {
-
-        var clientId = _configuration["Google:ClientId"];
+        var clientId = _googleSettings.ClientId;
         if (string.IsNullOrEmpty(clientId))
         {
             throw new InvalidOperationException("Google Client ID is not configured.");
         }
 
-        // Set up validation settings with audience check
-        var validationSettings = new GoogleJsonWebSignature.ValidationSettings
+        GoogleJsonWebSignature.Payload payload;
+        try
         {
-            Audience = [clientId]
+            var validationSettings = new GoogleJsonWebSignature.ValidationSettings
+            {
+                Audience = [clientId]
+            };
+            payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, validationSettings);
+        }
+        catch (InvalidJwtException ex)
+        {
+            // Log ex for details
+            return Error.Validation("Google.InvalidToken", "Invalid Google ID token.");
+        }
+
+        // Create a ClaimsPrincipal from the validated payload
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, payload.Subject),
+            new Claim(ClaimTypes.Email, payload.Email),
+            new Claim("email_verified", payload.EmailVerified.ToString(), ClaimValueTypes.Boolean),
+            new Claim(ClaimTypes.Name, payload.Name)
         };
+        var identity = new ClaimsIdentity(claims, "Google");
+        var principal = new ClaimsPrincipal(identity);
 
-
-        // Validate the Google ID token
-        var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, validationSettings);
+        // Delegate the core user processing and JWT generation to the shared handler
         var provider = "Google";
         var providerKey = payload.Subject; // Google's unique user ID
-
-        // Check if the user exists by external login
-        if(await _userManager.FindByLoginAsync(provider, providerKey) is User user)       
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-            var token = _jwtTokenGenerator.GenerateToken(user, [.. roles]);
-            return new AuthenticationResult(user.Id, user.Email!, token);
-        }
-
-        //Here u can decide to merge the google login with the existing email
-        var email = payload.Email;
-        if (await _userManager.FindByEmailAsync(email) != null)
-        {
-            return Error.Conflict(description: "Email is already in use by another account.");
-        }
-
-        user = new User
-        {
-            Id = Guid.NewGuid(),
-            UserName = email,
-            Email = email,
-            UserType = UserType.User
-        };
-
-        var createResult = await _userManager.CreateAsync(user);
-        if (!createResult.Succeeded)
-        {
-            return createResult.Errors
-                .Select(e => Error.Validation(e.Code, e.Description))
-                .ToList();
-        }
-
-        // Link Google login to the user
-        var loginInfo = new UserLoginInfo(provider, providerKey, provider);
-        var addLoginResult = await _userManager.AddLoginAsync(user, loginInfo);
-        if (!addLoginResult.Succeeded)
-        {
-            return addLoginResult.Errors
-                .Select(e => Error.Validation(e.Code, e.Description))
-                .ToList();
-        }
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-        var newUserToken = _jwtTokenGenerator.GenerateToken(user, [.. userRoles]);
-
-        return new AuthenticationResult(user.Id, user.Email, newUserToken);
-
+        
+        return await _sender.Send(
+            new ProcessExternalLoginCommand(provider, providerKey, principal),
+            cancellationToken);
     }
 }

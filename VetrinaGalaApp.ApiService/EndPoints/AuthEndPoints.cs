@@ -1,6 +1,12 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using VetrinaGalaApp.ApiService.Application.Authentication;
+using VetrinaGalaApp.ApiService.Application.Common.Security;
+using VetrinaGalaApp.ApiService.Domain.UserDomain;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.EndPoints;
 
@@ -10,6 +16,7 @@ public static class AuthEndPoints
     {
         var group = app.MapGroup("/auth");
         {
+            // This endpoint is used to login with Google when the client has already the id token (implicit flow)
             group.MapPost("/login/google", async (
             LoginWithGoogleRequest request,
             ISender sender) =>
@@ -53,15 +60,37 @@ public static class AuthEndPoints
             group.MapGet("/check", () => Results.Ok())
                 .RequireAuthorization();
         }
-
-
-
         app.MapGet("/auth/claims", (HttpContext context) =>
         {
             return context.User.Claims
                 .Select(c => new ClaimDto(c.Type, c.Value))
                 .ToList();
         }).RequireAuthorization();
+
+
+        app.MapGet("/signin-google", async (
+            HttpContext httpContext, // Needed for SignOutAsync if used
+            SignInManager<User> signInManager,
+            ISender sender) =>
+        {
+            var info = await signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+            {
+                return Results.BadRequest();
+            }
+
+            // Optional: Clean up external cookie
+            await httpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            // Pass the provider name, key, and principal obtained by the middleware
+            var result = await sender.Send(
+                new ProcessExternalLoginCommand(info.LoginProvider, info.ProviderKey, info.Principal));
+
+            return result.Match(
+                authResult => Results.Ok(authResult),
+                errors => errors.ToResult());
+
+        });
         return app;
     }
 }
