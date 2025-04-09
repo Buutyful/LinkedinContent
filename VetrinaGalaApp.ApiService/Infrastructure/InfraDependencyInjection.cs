@@ -64,6 +64,7 @@ public static class InfraDependencyInjection
     private static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.Section));
+        services.Configure<GoogleSettings>(configuration.GetSection(GoogleSettings.Section));
 
         services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
         services
