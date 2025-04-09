@@ -91,7 +91,9 @@ public static class InfraDependencyInjection
               // This allows SignInManager.GetExternalLoginInfoAsync() to work correctly
               options.SignInScheme = IdentityConstants.ExternalScheme;
           });
-
+        //Note: to make cookies work in a distributed system all instances of the application must share the same Data Protection keys.
+        //This allows any instance to decrypt and validate cookies created by any other instance.
+        
         services.AddScoped<ICurrentUserProvider, UserProvider>();
 
         return services;
