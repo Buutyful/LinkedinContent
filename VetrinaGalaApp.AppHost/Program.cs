@@ -1,5 +1,6 @@
 using System.Diagnostics;
 
+
 var builder = DistributedApplication.CreateBuilder(args);
 
 //Postgres server
@@ -31,21 +32,22 @@ var apiService = builder.AddProject<Projects.VetrinaGalaApp_ApiService>("apiserv
     .WithScalar()
     .WaitFor(migrator);
 
-//Web client
-builder.AddProject<Projects.VetrinaGalaApp_Web>("webfrontend")
-    .WithExternalHttpEndpoints()
+//Web client: https://learn.microsoft.com/en-us/dotnet/aspire/get-started/build-aspire-apps-with-nodejs
+builder.AddNpmApp("frontend", "../VetrinaGalaApp.Client")
     .WithReference(apiService)
-    .WaitFor(apiService);
-
+    .WaitFor(apiService)
+    .WithEnvironment("BROWSER", "none")
+    .WithHttpEndpoint(env: "VITE_PORT")
+    .WithExternalHttpEndpoints()
+    .PublishAsDockerFile();
 
 builder.Build().Run();
-
 
 public static class ResourceBuilderExtentsions
 {
     public static IResourceBuilder<T> WithScalar<T>(this IResourceBuilder<T> builder)
-        where T : IResourceWithEndpoints 
-        => builder.WithOpenApiDocs("scalar", "Scalar_Api", "/scalar/v1"); 
+        where T : IResourceWithEndpoints
+        => builder.WithOpenApiDocs("scalar", "Scalar_Api", "/scalar/v1");
     private static IResourceBuilder<T> WithOpenApiDocs<T>(
         this IResourceBuilder<T> builder,
         string name,
@@ -72,4 +74,3 @@ public static class ResourceBuilderExtentsions
         return builder;
     }
 }
-

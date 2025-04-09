@@ -8,8 +8,11 @@ using VetrinaGalaApp.ApiService.EndPoints;
 using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.ApiService.Application.Authentication;
+
+//This token is obtained from the client-side after a user successfully signs in with their Google account
 public record LoginWithGoogleCommand(string IdToken) : IRequest<ErrorOr<AuthenticationResult>>;
 
+//If a google login wasnt already present, creates a new user with the email from the token
 public class LoginWithGoogleCommandHandler(
     UserManager<User> userManager,
     IJwtTokenGenerator jwtTokenGenerator,

@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VetrinaGalaApp.ServiceDefau
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VetrinaGalaApp.ApiService", "VetrinaGalaApp.ApiService\VetrinaGalaApp.ApiService.csproj", "{8AB927B7-5F3D-431A-B241-918D6BA067EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VetrinaGalaApp.Web", "VetrinaGalaApp.Web\VetrinaGalaApp.Web.csproj", "{FDF492D2-857E-49B5-8737-96BEBDCB5674}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VetrinaGalaApp.Tests", "VetrinaGalaApp.Tests\VetrinaGalaApp.Tests.csproj", "{5F283F58-588B-4748-B235-4F4EB0C01BA5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VetrinaGalaApp.MigrationService", "VetrinaGalaApp.MigrationService\VetrinaGalaApp.MigrationService.csproj", "{EDED3107-A306-4352-9204-3E68A5FF3B70}"
@@ -32,10 +30,6 @@ Global
 		{8AB927B7-5F3D-431A-B241-918D6BA067EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AB927B7-5F3D-431A-B241-918D6BA067EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AB927B7-5F3D-431A-B241-918D6BA067EA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FDF492D2-857E-49B5-8737-96BEBDCB5674}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FDF492D2-857E-49B5-8737-96BEBDCB5674}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FDF492D2-857E-49B5-8737-96BEBDCB5674}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FDF492D2-857E-49B5-8737-96BEBDCB5674}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5F283F58-588B-4748-B235-4F4EB0C01BA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5F283F58-588B-4748-B235-4F4EB0C01BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5F283F58-588B-4748-B235-4F4EB0C01BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -47,5 +41,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F776BD27-91A4-4569-80A8-6DFCC5799736}
 	EndGlobalSection
 EndGlobal
