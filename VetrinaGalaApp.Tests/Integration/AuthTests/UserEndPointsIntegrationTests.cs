@@ -153,14 +153,41 @@ public class UserEndpointsIntegrationTests(IntegrationTestBase integrationTestBa
     public async Task ProtectedEndpoint_WithInvalidToken_ReturnsUnauthorized()
     {
         // Arrange
-        using var client = _base.Factory.CreateClient();
-        client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", "invalid-token");
+        using var client = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, "invalid-token");
 
         // Act
         var response = await client.GetAsync("/auth/check");
 
         // Assert
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+    [Fact]
+    public async Task ProtectedEndpoint_WithInvalidToken_ReturnsUnauthorize2d()
+    {
+        // Arrange
+        using var client = AuthTestHelpers.CreateAuthenticatedClient(_base.Factory, "invalid-token");
+
+        // Act - Add a handler to see redirect information
+        var handler = new HttpClientHandler();
+        handler.AllowAutoRedirect = false; // Prevent auto-redirect to see what's happening
+        var clientWithoutRedirect = _base.Factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            AllowAutoRedirect = false,
+            HandleCookies = false
+        });
+        clientWithoutRedirect.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", "invalid-token");
+
+        var response = await clientWithoutRedirect.GetAsync("/auth/check");
+
+        // Assert
+        Console.WriteLine($"Status code: {response.StatusCode}");
+        Console.WriteLine($"Headers: {string.Join(", ", response.Headers)}");
+        if (response.Headers.Location != null)
+        {
+            Console.WriteLine($"Redirect location: {response.Headers.Location}");
+        }
+
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
     }
 }
@@ -185,7 +212,7 @@ public static class UserTestHelpers
 public static class AuthTestHelpers
 {
     public static HttpClient CreateAuthenticatedClient(
-        WebApplicationFactory<Program> factory,
+        WebApplicationFactory<ProgramApiMarker> factory,
         string token)
     {
         var client = factory.CreateClient();

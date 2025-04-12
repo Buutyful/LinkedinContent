@@ -10,7 +10,7 @@ using VetrinaGalaApp.ApiService.Infrastructure.Models;
 
 namespace VetrinaGalaApp.Tests.Integration;
 
-public sealed class ApiServiceTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
+public sealed class ApiServiceTestFactory : WebApplicationFactory<ProgramApiMarker>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _dbContainer;
 

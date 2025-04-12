@@ -55,22 +55,27 @@ public static class ResourceBuilderExtentsions
         string url)
         where T : IResourceWithEndpoints
     {
-        builder.WithCommand(name, displayName, async (command) =>
-                            {
-                                await Task.CompletedTask;
-                                try
-                                {
-                                    var endpoint = builder.GetEndpoint("https");
-                                    var Url = $"{endpoint.Url}{url}";
-                                    Process.Start(new ProcessStartInfo(Url) { UseShellExecute = true });
+        builder.WithCommand(
+            name,
+            displayName,
+            async (command) =>
+            {
+                await Task.CompletedTask;
+                try
+                {
+                    var endpoint = builder.GetEndpoint("https");
+                    var Url = $"{endpoint.Url}{url}";
+                    Process.Start(new ProcessStartInfo(Url) { UseShellExecute = true });
 
-                                    return new ExecuteCommandResult { Success = true };
-                                }
-                                catch (Exception ex)
-                                {
-                                    return new ExecuteCommandResult { Success = false, ErrorMessage = ex.Message };
-                                }
-                            });
+                    return new ExecuteCommandResult { Success = true };
+                }
+                catch (Exception ex)
+                {
+                    return new ExecuteCommandResult { Success = false, ErrorMessage = ex.Message };
+                }
+            },
+            null
+        );
         return builder;
     }
 }

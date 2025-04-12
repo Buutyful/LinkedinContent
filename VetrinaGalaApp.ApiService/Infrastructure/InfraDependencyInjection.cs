@@ -19,9 +19,6 @@ public static class InfraDependencyInjection
     {
         builder.AddNpgsqlDbContext<AppDbContext>(connectionName: "postgresdb");
 
-        services
-            .AddMinioClient(builder.Configuration)
-            .AddSecurity(builder.Configuration);
 
         services.AddIdentity<User, IdentityRole<Guid>>(options =>
         {
@@ -36,6 +33,10 @@ public static class InfraDependencyInjection
         })
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders();
+
+        services
+            .AddMinioClient(builder.Configuration)
+            .AddSecurity(builder.Configuration);
 
         return services;
     }
@@ -73,9 +74,10 @@ public static class InfraDependencyInjection
           {
               options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
               options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+              options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
           })
+          .AddCookie()
           .AddJwtBearer()
-          .AddCookie(IdentityConstants.ExternalScheme)
           .AddGoogle(options =>
           {
               var googleSettings = configuration.GetSection("Google").Get<GoogleSettings>();
@@ -93,7 +95,7 @@ public static class InfraDependencyInjection
           });
         //Note: to make cookies work in a distributed system all instances of the application must share the same Data Protection keys.
         //This allows any instance to decrypt and validate cookies created by any other instance.
-        
+
         services.AddScoped<ICurrentUserProvider, UserProvider>();
 
         return services;
