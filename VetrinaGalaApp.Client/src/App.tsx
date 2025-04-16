@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
+import GoogleCallbackPage from './pages/GoogleCallbackPage'; 
 import './App.css';
 
 // Example Placeholder Components
@@ -64,6 +65,8 @@ function App() {
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<RegisterPage />} />
                 <Route path="/public" element={<PublicPage />} />
+                {/* Google Auth Callback Route - Publicly accessible, but handles auth */}
+                <Route path="/auth/google/callback" element={<GoogleCallbackPage />} />
 
                  {/* Protected Routes */}
                 <Route

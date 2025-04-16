@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using ErrorOr;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using VetrinaGalaApp.ApiService.Application.Authentication;
@@ -85,28 +86,63 @@ public static class AuthEndPoints
             return Results.Challenge(properties, [provider]);
         });
         app.MapGet("/signin-google", async (
-            HttpContext httpContext, // Needed for SignOutAsync if used
+            HttpContext httpContext,
             SignInManager<User> signInManager,
-            ISender sender) =>
+            ISender sender,
+            IConfiguration configuration) =>
         {
+           
+            string frontendUrl = GetFrontendUrl(configuration);
+
             var info = await signInManager.GetExternalLoginInfoAsync();
             if (info == null)
             {
-                return Results.BadRequest();
+                return HandleExternalLoginFailure(frontendUrl);
             }
 
-            // Optional: Clean up external cookie
+            // Clean up external cookie
             await httpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
-            // Pass the provider name, key, and principal obtained by the middleware
+            // Process the external login
             var result = await sender.Send(
                 new ProcessExternalLoginCommand(info.LoginProvider, info.ProviderKey, info.Principal));
 
             return result.Match(
-                authResult => Results.Ok(authResult),
-                errors => errors.ToResult());
-
+                authResult => HandleSuccessfulLogin(frontendUrl, authResult),
+                errors => HandleProcessingFailure(frontendUrl, errors)
+            );
         });
+
+        // Helper methods to improve readability and maintainability
+        string GetFrontendUrl(IConfiguration configuration)
+        {
+            string url = configuration["services:frontend:https:0"] ?? 
+                configuration["services:frontend:http:0"] ??
+                throw new ArgumentNullException("front end url configuration");
+
+            return url.TrimEnd('/');
+        }
+
+        IResult HandleExternalLoginFailure(string frontendUrl) =>
+            Results.Redirect($"{frontendUrl}/login?error=externalloginfail");
+
+        IResult HandleSuccessfulLogin(string frontendUrl, AuthenticationResult authResult)
+        {
+
+            // Build callback URL with encoded parameters
+            var callbackUrl = $"{frontendUrl}/auth/google/callback" +
+                $"?token={Uri.EscapeDataString(authResult.Token)}" +
+                $"&email={Uri.EscapeDataString(authResult.Email)}" +
+                $"&subId={Uri.EscapeDataString(authResult.SubId.ToString())}";
+
+            return Results.Redirect(callbackUrl);
+        }
+
+        IResult HandleProcessingFailure(string frontendUrl, List<Error> errors)
+        {
+            return Results.Redirect($"{frontendUrl}/login?error=processfail");
+        }
+
         return app;
     }
 }
