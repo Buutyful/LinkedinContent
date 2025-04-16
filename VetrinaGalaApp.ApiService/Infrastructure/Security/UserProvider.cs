@@ -1,7 +1,6 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
-using VetrinaGalaApp.ApiService.Domain.UserDomain;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 
 namespace VetrinaGalaApp.ApiService.Infrastructure.Security;

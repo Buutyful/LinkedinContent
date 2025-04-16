@@ -1,26 +1,6 @@
 ﻿using ErrorOr;
-using System.ComponentModel.DataAnnotations;
-using VetrinaGalaApp.ApiService.Domain.Common;
-using static VetrinaGalaApp.ApiService.Domain.UserDomain.DomainErrors;
+using static VetrinaGalaApp.ApiService.Domain.Common.DomainErrors;
 namespace VetrinaGalaApp.ApiService.Domain.UserDomain;
-
-
-
-public class BaseUser : Entity
-{   
-    public UserType UserType { get; }
-
-    [EmailAddress]
-    public string Email { get; }
-
-    private BaseUser(Guid id, UserType userType, string email) : base(id) =>
-        (UserType, Email) = (userType, email);
-    public static BaseUser CreateNew(string email) =>
-        new(Guid.NewGuid(), UserType.User, email);
-    public static BaseUser Create(Guid id, string email) =>
-        new(id, UserType.User, email);
-
-}
 
 public class UserFeedQueue
 {
@@ -68,13 +48,5 @@ public class UserFeedQueue
 
         _currentItem = _swipeQueue.Dequeue();
         return _currentItem;
-    }
-}
-
-public static partial class DomainErrors
-{
-    public static class UserFeedErrors
-    {
-        public static Error FeedIsEmpty => Error.Custom(0, code: "Feed_Empty", description: "User feed is empty");
     }
 }

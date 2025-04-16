@@ -2,8 +2,8 @@
 using System.Net.Http.Json;
 using System.Security.Claims;
 using VetrinaGalaApp.ApiService.Application.Common.Security;
-using VetrinaGalaApp.ApiService.Domain.UserDomain;
 using VetrinaGalaApp.ApiService.EndPoints;
+using VetrinaGalaApp.ApiService.Infrastructure.Models;
 using VetrinaGalaApp.ApiService.Infrastructure.Security.Jwt;
 using VetrinaGalaApp.Tests.Integration.AuthTests;
 
